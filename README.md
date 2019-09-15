@@ -1,2 +1,2 @@
 # KobeMvp
-As a mobile engineer you've been tasked with the development of an app for cinephiles and movie hobbyists. This first version (MVP) of the app will be very simple and limited to show the list of upcoming movies. The app will be fed with content from ​The Movie Database (TMDb)​. No design specs were given, so you're free to follow your UX and UI personal preferences. The choice of platform is the one you are applying for and the development approach is also for you to decide based on previous experience and/or personal interest.
+This first version (MVP) of the app will be very simple and limited to show the list of upcoming movies. The app will be fed with content from ​The Movie Database (TMDb)​.
