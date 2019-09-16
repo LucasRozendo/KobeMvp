@@ -52,9 +52,20 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
         listMoviesTableView.backgroundColor = .clear
         listMoviesTableView.layer.borderWidth = 1
         
-        getGenres()
-        getMovies(page: selectedPage,listId: selectedList)
+        do{
+            try getGenres()
+        } catch {
+             messageAlert(titleAlert: "Alert", messageAlert: "Error fetching genres",actionButtonText: "OK")
+        }
+        
+        do{
+            try getMovies(page: selectedPage,listId: selectedList)
+        } catch {
+             messageAlert(titleAlert: "Alert", messageAlert: "Error fetching movies",actionButtonText: "OK")
+        }
+        
     }
+    
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -82,7 +93,7 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
         
         let urlPoster = URL(string: "https://image.tmdb.org/t/p/w500/"+self.movies[indexPath.row].poster_path)
         
-        //let placeholderImage = UIImage(named: "logo_notificacao")!
+        let placeholderImage = UIImage(named: "kobe")!
         let filter = AspectScaledToFillSizeWithRoundedCornersFilter(
             size: CGSize(width: 100.0, height: 100.0),
             radius: 20.0
@@ -90,7 +101,7 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
         
         cell.posterImage.af_setImage(
             withURL: urlPoster!,
-            //placeholderImage: placeholderImage,
+            placeholderImage: placeholderImage,
             filter: filter,
             imageTransition: .crossDissolve(0.2)
         )
@@ -129,7 +140,12 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
     // MARK: - SearchBar
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         if searchBar.text != "" {
-             searchMovie(nameMovie: searchBar.text ?? "")
+            do{
+                try searchMovie(nameMovie: searchBar.text ?? "")
+            } catch {
+                messageAlert(titleAlert: "Alert", messageAlert: "Error fetching movies",actionButtonText: "OK")
+            }
+            
         }else{
             messageAlert(titleAlert: "Alert", messageAlert: "Please enter the name of the movie.",actionButtonText: "OK")
         }
@@ -143,7 +159,12 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
             searching = false
             searchBar.text = ""
             movies.removeAll()
-            getMovies(page: selectedPage,listId: selectedList)
+            do{
+                try getMovies(page: selectedPage,listId: selectedList)
+            } catch {
+                messageAlert(titleAlert: "Alert", messageAlert: "Error fetching movies",actionButtonText: "OK")
+            }
+            
         }
        
     }
@@ -154,8 +175,12 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
     func beginBatchFetch(){
         fetchingMore = true
         
-        getMovies(page: selectedPage,listId: selectedList)
-        
+        do{
+            try  getMovies(page: selectedPage,listId: selectedList)
+        } catch {
+            messageAlert(titleAlert: "Alert", messageAlert: "Error fetching movies",actionButtonText: "OK")
+        }
+       
     }
     
     // MARK: - Load Movies
@@ -165,10 +190,11 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
      @param page - indicates the page to search
      @param listId - indicates the id of list to search
      */
-    func getMovies(page: Int,listId: Int){
+    func getMovies(page: Int,listId: Int) throws{
         
         viewCarrega.showActivityIndicator(uiView: self.view)
         let parametersMovies: Parameters = ["page": String(page+1),"api_key": restClient.apiKey,"sort_by": "release_date.desc","language":"en-US"]
+        
         RestClient.execTaskSend(urlString: "/4/list/"+String(listId+1)+"?", param: parametersMovies, method: .get) { (ok, jsonMoviesReturn) in
             
             if (ok == true){
@@ -196,12 +222,12 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
     /*
      Take the genres
      */
-    func getGenres()  {
+    func getGenres() throws {
         viewCarrega.showActivityIndicator(uiView: self.view)
         let parametersGenres: Parameters = ["api_key": restClient.apiKey,"language":"en-US"]
-        RestClient.execTaskSend(urlString: "/3/genre/movie/list?", param: parametersGenres, method: .get) { (ok, jsonGenresReturn) in
+        RestClient.execTaskSend(urlString: "/3/genre/movie/list?", param: parametersGenres, method: .get) { (boolReturnDados, jsonGenresReturn) in
             
-            if (ok == true){
+            if (boolReturnDados == true){
                 self.listGenres = (ListGenres)(json: jsonGenresReturn)
             }
             DispatchQueue.main.async {
@@ -216,15 +242,15 @@ class MoviesListViewController: UIViewController,UITableViewDataSource,UITableVi
      
      @param nameMovie - name to be searched
      */
-    func searchMovie(nameMovie: String){
+    func searchMovie(nameMovie: String) throws{
         viewCarrega.showActivityIndicator(uiView: self.view)
         searching = true
         movies.removeAll()
         
         let parametersMovies: Parameters = ["api_key": restClient.apiKey,"query": nameMovie,"language":"en-US"]
-        RestClient.execTaskSend(urlString: "/3/search/movie?", param: parametersMovies, method: .get) { (ok, jsonMoviesReturn) in
+        RestClient.execTaskSend(urlString: "/3/search/movie?", param: parametersMovies, method: .get) { (boolReturnDados, jsonMoviesReturn) in
             
-            if (ok == true){
+            if (boolReturnDados == true){
                 var listMovie:ListMovie = ListMovie()
                 listMovie = (ListMovie)(json: jsonMoviesReturn)
                 if(listMovie.results.count > 0){

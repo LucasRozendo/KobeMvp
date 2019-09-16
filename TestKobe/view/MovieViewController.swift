@@ -26,6 +26,7 @@ class MovieViewController: UIViewController {
 
         let urlPoster = URL(string: "https://image.tmdb.org/t/p/w500/"+movie.poster_path)
         
+        let placeholderImage = UIImage(named: "kobe")!
         let filter = AspectScaledToFillSizeWithRoundedCornersFilter(
             size: CGSize(width: 100.0, height: 100.0),
             radius: 20.0
@@ -33,6 +34,7 @@ class MovieViewController: UIViewController {
         
         posterImage.af_setImage(
             withURL: urlPoster!,
+            placeholderImage: placeholderImage,
             filter: filter,
             imageTransition: .crossDissolve(0.2)
         )

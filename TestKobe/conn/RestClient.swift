@@ -29,7 +29,7 @@ class RestClient {
                     taskCallback(true, jsonStr)
                 }
                 
-            case .failure(let error):
+            case .failure( _):
                 taskCallback(false, nil)
                 
             }
